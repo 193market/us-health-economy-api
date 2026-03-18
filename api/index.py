@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 import os
@@ -34,7 +35,7 @@ async def worldbank(indicator: str, country: str = "US", limit: int = 20):
         r = await client.get(url, params=params, timeout=10)
         r.raise_for_status()
         data = r.json()
-        if len(data) < 2:
+        if len(data) < 2 or not data[1]:
             return []
         return [{"year": d["date"], "value": d["value"]} for d in data[1] if d.get("value") is not None]
 
@@ -254,3 +255,12 @@ async def comparison(country: str = "USA", limit: int = 20):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    if request.url.path == "/":
+        return await call_next(request)
+    key = request.headers.get("X-RapidAPI-Key", "")
+    if not key:
+        return JSONResponse(status_code=401, content={"detail": "Missing X-RapidAPI-Key header"})
+    return await call_next(request)
