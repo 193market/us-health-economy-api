@@ -61,12 +61,12 @@ async def root():
 async def summary():
     try:
         med_cpi = await fred("CPIMEDSL", limit=4)
-        health_employ = await fred("CES0620000001", limit=4)
+        health_employ = await fred("CES6562000001", limit=4)
         pce_health = await fred("DHLCRG3Q086SBEA", limit=4)
         drug_ppi = await fred("PCU3254132541", limit=4)
         return {
             "medical_cpi": {"series": "CPIMEDSL", "description": "CPI: Medical Care", "data": med_cpi[:4]},
-            "healthcare_employment": {"series": "CES0620000001", "description": "Health Care & Social Assistance Employment (thousands)", "data": health_employ[:4]},
+            "healthcare_employment": {"series": "CES6562000001", "description": "Health Care & Social Assistance Employment (thousands)", "data": health_employ[:4]},
             "health_pce_deflator": {"series": "DHLCRG3Q086SBEA", "description": "PCE: Health Care Services Price Index", "data": pce_health[:4]},
             "pharmaceutical_ppi": {"series": "PCU3254132541", "description": "PPI: Pharmaceutical Products", "data": drug_ppi[:4]}
         }
@@ -142,14 +142,14 @@ async def medical_prices(limit: int = 24):
 @app.get("/employment")
 async def employment(limit: int = 24):
     try:
-        health_social = await fred("CES0620000001", limit=limit)
+        health_social = await fred("CES6562000001", limit=limit)
         ambulatory = await fred("CES0620100001", limit=limit)
         hospitals = await fred("CES0620200001", limit=limit)
         nursing = await fred("CES0620300001", limit=limit)
         return {
             "description": "Healthcare sector employment data",
             "health_social_assistance": {
-                "series": "CES0620000001",
+                "series": "CES6562000001",
                 "description": "Health Care & Social Assistance: All Employees (thousands)",
                 "data": health_social
             },
